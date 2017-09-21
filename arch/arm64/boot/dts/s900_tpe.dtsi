@@ -1,0 +1,704 @@
+/*
+ * Copyright (C) 2014 Actions Semi. Inc
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation version 2.
+ *
+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+ * kind, whether express or implied; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/* reserve 16MB for secure monitor */
+/memreserve/ 0x1F000000 0x01000000;
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/clock/clk-s900.h>
+#include <dt-bindings/reset/reset-s900.h>
+#include <dt-bindings/dma/dma-s900.h>
+#include <dt-bindings/pm-domains/pm-domains-s900.h>
+#include "s900_pinctrl_tpe.dtsi"
+
+/ {
+	compatible = "actions,armv8","actions,s900";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &serial0;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		serial5 = &serial5;
+		mmc0 = &mmc0;
+		mmc1 = &mmc1;
+		mmc2 = &mmc2;
+		mmc3 = &mmc3;
+		spi0 = &spi0;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		isp0 = &isp0;
+		gpio0=&gpioa;
+		gpio1=&gpiob;
+		gpio2=&gpioc;
+		gpio3=&gpiod;
+		gpio4=&gpioe;
+		gpio5=&gpiof;
+		nand0=&nand0;
+		nand1=&nand1;
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		idle-states {
+			entry-method = "arm,psci";
+
+			CPU_SLEEP_0: cpu-sleep-0 {
+				compatible = "arm,idle-state";
+				desc = "CPU Power Down";
+				entry-method-param = <0x0010000>;
+				entry-latency-us = <4000000>;
+				exit-latency-us = <10000000>;
+				min-residency-us = <15000000>;
+			};
+
+			CPU_SLEEP_1: cpu-sleep-1 {
+				compatible = "arm,idle-state";
+				desc = "SoC Sleep";
+				entry-method-param = <0x0010002>;
+				entry-latency-us = <100000000>;
+				exit-latency-us = <100000000>;
+				min-residency-us = <100000000>;
+			};
+		};
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0 &CPU_SLEEP_1>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x1>;
+			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0 &CPU_SLEEP_1>;
+		};
+		cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x2>;
+			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0 &CPU_SLEEP_1>;
+		};
+		cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x3>;
+			enable-method = "psci";
+			cpu-idle-states = <&CPU_SLEEP_0 &CPU_SLEEP_1>;
+		};
+	};
+
+	psci {
+		compatible = "arm,psci";
+		method = "smc";
+		cpu_suspend = <0xc4000001>;
+		cpu_off = <0x84000002>;
+		cpu_on = <0xc4000003>;
+		migrate = <0xc4000005>;
+	};
+
+	gic: interrupt-controller@e00f1000 {
+		compatible = "arm,cortex-a15-gic", "arm,cortex-a9-gic";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg = <0 0xe00f1000 0 0x1000>,
+		      <0 0xe00f2000 0 0x1000>,
+		      <0 0xe00f4000 0 0x2000>,
+		      <0 0xe00f6000 0 0x2000>;
+		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+		clock-frequency = <24000000>;
+	};
+
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	clock: clock-controller@e0160000 {
+		compatible = "actions,s900-clock";
+		reg = <0 0xe0160000 0 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	reset: reset-controller@e01600a8 {
+		compatible = "actions,s900-reset";
+		reg = <0 0xe01600a8 0 0x8>;
+		#reset-cells = <1>;
+	};
+
+	timer@e0228000 {
+		compatible = "actions,owl-timer";
+		reg = <0 0xe0228000 0 0x20>;
+		interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_TIMER>;
+		clock-names = "timer";
+	};
+
+	powergate: power-domain@e012e000 {
+		compatible = "actions,s900-pm-domains";
+		reg = <0 0xe012e000 0 0x1000>;
+		#power-domain-cells = <1>;
+	};
+
+	dma: dma-controller@e0260000 {
+		compatible = "actions,s900-dma";
+		reg = <0 0xe0260000 0 0x1000>;
+		interrupts = <GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>;
+		#dma-cells = <1>;
+		dma-channels = <12>;	/* physical dma channels */
+		dma-requests = <46>;	/* virtual dma channels */
+		clocks = <&clock CLK_DMAC>;
+		clock-names = "dmac";
+	};
+
+	sirq: interrupt-controller@e01b0000 {
+		compatible = "actions,s900-sirq";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,/*SIRQ0*/
+			     			 <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,/*SIRQ1*/
+			     			 <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;/*SIRQ2*/
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpioa: gpioa@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	gpiob: gpiob@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	gpioc: gpioc@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	gpiod: gpiod@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	gpioe: gpioe@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	gpiof: gpiof@e01b0000 {
+		compatible = "actions,s900-gpio";
+		reg = <0 0xe01b0000 0 0x1000>;
+		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+
+	pwm: pwm@e01b0000 {
+		compatible = "actions,s900-pwm";
+		reg = <0 0xe01b0000 0 0x1000>;
+		#pwm-cells = <3>;
+	};
+
+	mmc0: mmc@e0338000 {
+		compatible = "actions,s900-mmc";
+		reg = <0 0xe0338000 0 0x38>, <0 0xe0300000 0 0x100>,
+			  <0 0xe01b0000 0 0xf0>, <0 0xe0160000 0 0xf0>;
+		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_NAND>;
+		clocks = <&clock CLK_SD2>, <&clock CLK_NAND0>;
+		clock-names = "mmc", "nand";
+		resets = <&reset RESET_SD2>, <&reset RESET_NANDC0>;
+		reset-names = "mmc", "nand";
+		dmas = <&dma DMA_DRQ_SD2>;
+		dma-names = "mmc";
+		pinctrl-names = "pinctrl_mmc2";
+		pinctrl-0 = <&mm2_pinctrl_state>;
+		status = "disabled";
+	};
+
+	mmc1: mmc@e033c000 {
+		compatible = "actions,s900-mmc";
+		reg = <0 0xe033c000 0 0x38>, <0 0xe0308000 0 0x100>,
+			  <0 0xe01b0000 0 0xf0>, <0 0xe0160000 0 0xf0>;
+		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_NAND>;
+		clocks = <&clock CLK_SD3>, <&clock CLK_NAND1>;
+		clock-names = "mmc", "nand";
+		resets = <&reset RESET_SD3>, <&reset RESET_NANDC1>;
+		reset-names = "mmc", "nand";
+		dmas = <&dma DMA_DRQ_SD3>;
+		pinctrl-names = "pinctrl_mmc3";
+		pinctrl-0 = <&mm3_pinctrl_state>;
+		dma-names = "mmc";
+		status = "disabled";
+	};
+
+	mmc2: mmc@e0334000 {
+		compatible = "actions,s900-mmc";
+		reg = <0 0xe0334000 0 0x38>,<0 0xe0300000 0 0x100>,
+			  <0 0xe01b0000 0 0xf0>, <0 0xe0160000 0 0xf0>;
+		interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_SD1>;
+		clock-names = "mmc";
+		resets = <&reset RESET_SD1>;
+		reset-names = "mmc";
+		dmas = <&dma DMA_DRQ_SD1>;
+		dma-names = "mmc";
+		pinctrl-names = "pinctrl_mmc1";
+		pinctrl-0 = <&mm1_pinctrl_state>;
+		status = "disabled";
+	};
+
+	mmc3: mmc@e0330000 {
+		compatible = "actions,s900-mmc";
+		reg = <0 0xe0330000 0 0x38>,<0 0xe0300000 0 0x100>,
+			  <0 0xe01b0000 0 0xf0>, <0 0xe0160000 0 0xf0>;
+		interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_SD0>;
+		clock-names = "mmc";
+		resets = <&reset RESET_SD0>;
+		reset-names = "mmc";
+		dmas = <&dma DMA_DRQ_SD0>;
+		dma-names = "mmc";
+		sdio_uart_supported;
+		pinctrl-names = "pinctrl_mmc0","share_uart2_5";
+		pinctrl-0 = <&mm0_pinctrl_state>;
+		pinctrl-1 = <&mmc_share_uart_state>;
+		status = "disabled";
+	};
+
+	usb2h0: usb@e02b0000 {
+		compatible = "actions,s900-usb2.0-0";
+		reg = <0 0xe02b0000 0 0x1000>;
+		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_USB2H0>;
+		clocks = <&clock CLK_USB2H0_PLLEN>, <&clock CLK_USB2H0_PHY>, <&clock CLK_USB2H0_CCE>;
+		clock-names = "usbh0_pllen", "usbh0_phy", "usbh0_cce";
+		resets	= <&reset RESET_USBH0>;
+		reset-names = "usb2h0";
+		status = "disabled";
+	};
+
+	usb2h1: usb@e02c0000 {
+		compatible = "actions,s900-usb2.0-1";
+		reg = <0 0xe02c0000 0 0x1000>;
+		interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_USB2H1>;
+		clocks = <&clock CLK_USB2H1_PLLEN>, <&clock CLK_USB2H1_PHY>, <&clock CLK_USB2H1_CCE>;
+		clock-names = "usbh1_pllen", "usbh1_phy", "usbh1_cce";
+		resets	= <&reset RESET_USBH1>;
+		reset-names = "usb2h1";
+		status = "okay";
+	};
+
+	nand0: nand@e0300000 {
+		compatible = "actions,s900-nand";
+		reg = <0 0xe0300000 0 0x1000>;
+		
+		dmas = <&dma DMA_DRQ_NANDDATA0>;
+		dma-names = "nand0";
+		power-domains = <&powergate POWER_DOMAIN_NAND>;
+		clocks = <&clock CLK_NAND0>;
+		clock-names = "nand0";
+		resets = <&reset RESET_NANDC0>;
+		reset-names = "nand0";
+	};
+
+	nand1: nand@e0308000 {
+		compatible = "actions,s900-nand";
+		reg = <0 0xe0308000 0 0x1000>;
+
+		dmas = <&dma DMA_DRQ_NANDDATA1>;
+		dma-names = "nand1";
+		power-domains = <&powergate POWER_DOMAIN_NAND>;
+		clocks = <&clock CLK_NAND1>;
+		clock-names = "nand1";
+		resets = <&reset RESET_NANDC1>;
+		reset-names = "nand1";
+	};
+
+	spi0: spi@e01d0000 {
+		compatible = "actions,s900-spi";
+		reg = <0 0xe01d0000 0 0x1000>;
+		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_SPI0>;
+		clock-names = "spi0";
+		status = "disabled";
+	};
+
+	i2c0: i2c@e0170000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe0170000 0 0x1000>;
+		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C0>;
+		clock-names = "i2c0";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c0_default>;
+		status = "disabled";
+	};
+
+	i2c1: i2c@e0172000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe0172000 0 0x1000>;
+		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C1>;
+		clock-names = "i2c1";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c1_default>;
+		status = "disabled";
+	};
+
+	i2c2: i2c@e0174000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe0174000 0 0x1000>;
+		interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C2>;
+		clock-names = "i2c2";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c2_default>;
+		status = "disabled";
+	};
+
+	i2c3: i2c@e0176000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe0176000 0 0x1000>;
+		interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C3>;
+		clock-names = "i2c3";
+		status = "disabled";
+	};
+
+	i2c4: i2c@e0178000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe0178000 0 0x1000>;
+		interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C4>;
+		clock-names = "i2c4";
+		status = "disabled";
+	};
+
+	i2c5: i2c@e017a000 {
+		compatible = "actions,s900-i2c";
+		reg = <0 0xe017a000 0 0x1000>;
+		interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&clock CLK_I2C5>;
+		clock-names = "i2c5";
+		status = "disabled";
+	};
+	serial0: uart@e0120000 {
+		compatible = "actions,s900-serial";
+		reg = <0 0xe0120000 0 0x1000>;
+		interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_UART0>;
+		clock-names = "uart";
+		resets = <&reset RESET_UART0>;
+	};
+
+	serial2: uart@e0124000 {
+		compatible = "actions,s900-serial";
+		reg = <0 0xe0124000 0 0x1000>;
+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_UART2>;
+		clock-names = "uart";
+		resets = <&reset RESET_UART2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&serial2_state_default>;
+		status = "disabled";
+	};
+
+	serial3: uart@e0126000 {
+		compatible = "actions,s900-serial";
+		reg = <0 0xe0126000 0 0x1000>;
+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_UART3>;
+		clock-names = "uart";
+		resets = <&reset RESET_UART3>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&serial3_state_default>;
+		status = "disabled";
+	};
+
+	serial5: uart@e012a000 {
+		compatible = "actions,s900-serial";
+		reg = <0 0xe012a000 0 0x1000>;
+		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_UART5>;
+		clock-names = "uart";
+		resets = <&reset RESET_UART5>;
+	};
+
+	isp0: isp@e0270000 {
+		compatible = "actions,s900-isp";
+		reg = <0 0xe0270000 0 0x454>,
+		      <0 0xe02d0000 0 0x108>,
+		      <0 0xe02d8000 0 0x108>;
+		interrupts = <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_SENSOR>;
+		clocks = <&clock CLK_BISP>, <&clock CLK_CSI0>,
+			 <&clock CLK_CSI1>, <&clock CLK_SENSOR>;
+		clock-names = "bisp", "csi0", "csi1", "sensor";
+		resets = <&reset RESET_BISP_AXI>, <&reset RESET_CSI0>, <&reset RESET_CSI1>;
+		reset-names = "bisp", "csi0", "csi1";
+	};
+
+	de@e02e0000 {
+		compatible = "actions,s900-de";
+		reg = <0 0xe02e0000 0 0x1014>,
+		      <0 0xe0160030 0 0x4>;
+		reg-names = "regs", "cmu_declk";
+		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_DE>;
+		clocks = <&clock CLK_DE>, <&clock CLK_ASSIST_PLL>;
+		clock-names = "clk", "clk_parent";
+		resets = <&reset RESET_DE>;
+		reset-names = "de";
+	};
+
+	edp: edp@e02e0000 {
+		compatible = "actions,s900-edp", "simple-bus";
+		reg = <0 0xe0190000 0 0x510>,
+		      <0 0xe0160000 0 0x100>;
+		reg-names = "regs", "cmu_base";
+		clocks = <&clock CLK_EDP>;
+		clock-names = "edp";
+		resets	= <&reset RESET_EDP>;
+		reset-names = "edp";
+	};
+
+	lcd@e02a0000 {
+		compatible = "actions,s900-lcd", "simple-bus";
+		reg = <0 0xe02a0000 0 0x208>,
+		      <0 0xe0160000 0 0x100>;
+		reg-names = "regs", "cmu_base";
+		clocks = <&clock CLK_LCD>;
+		clock-names = "lcd";
+		resets	= <&reset RESET_LCD0>;
+		reset-names = "lcd";
+		pinctrl-names = "default";
+		pinctrl-0 = <&lvds_state_default>;
+		status = "disabled";
+	};
+
+
+	hdmi@e0250000 {
+		compatible = "actions,s900-hdmi", "simple-bus";
+		reg = <0 0xe0250000 0 0x1f0>;
+		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	owl_dwc3@e040cd00 {
+		compatible = "actions,s900-dwc3";
+		reg = <0 0xe040cd00 0 0xc>;
+		power-domains = <&powergate POWER_DOMAIN_USB3>;
+		clocks = <&clock CLK_USB3_480MPLL0>, <&clock CLK_USB3_480MPHY0>, <&clock CLK_USB3_5GPHY>, <&clock CLK_USB3_CCE>, <&clock CLK_USB3_MAC>;
+		clock-names = "usb3_480mpll0", "usb3_480mphy0", "usb3_5gphy", "usb3_cce", "usb3_mac";
+		resets	= <&reset RESET_USB3>;
+		reset-names = "usb3";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		dwc3@e0400000 {
+			compatible = "synopsys,dwc3";
+			reg = <0 0xe0400000 0 0xcd00>;
+			interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+			usb-phy = <&usb2_phy>, <&usb3_phy>;
+		};
+	};
+
+	usb2_phy: usb2phy@0xe040cd0c {
+		compatible = "actions,s900-usb2phy";
+		reg = <0 0xe040cd0c 0 0x4>;
+	};
+
+	usb3_phy: usb3phy@0xe040cf00 {
+		compatible = "actions,s900-usb3phy";
+		reg = <0 0xe040cf00 0 0x100>;
+	};
+
+	vce@e0288000 {
+		compatible = "actions,s900-vce";
+		reg = <0 0xe0288000 0 0x94>;
+		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_VCE>;
+		clocks = <&clock CLK_VCE>;
+		clock-names = "vce";
+		resets = <&reset RESET_VCE>;
+		reset-names = "vce";
+	};
+
+	vde@e0280000 {
+		compatible = "actions,s900-vde";
+		reg = <0 0xe0280000 0 0x108>;
+		interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_VDE>;
+		clocks = <&clock CLK_VDE>;
+		clock-names = "vde";
+		resets = <&reset RESET_VDE>;
+		reset-names = "vde";
+	};
+
+	hde@e0230000 {
+		compatible = "actions,s900-hde";
+		reg = <0 0xe0230000 0 0x108>;
+		interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_HDE>;
+		clocks = <&clock CLK_HDE>;
+		clock-names = "hde";
+		resets = <&reset RESET_HDE>;
+		reset-names = "hde";
+	};
+
+	imx@e0278000 {
+		compatible = "actions,s900-imx";
+		reg = <0 0xe0278000 0 0x2c>;
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&powergate POWER_DOMAIN_SENSOR>;
+		clocks = <&clock CLK_IMX>;
+		clock-names = "imx";
+		resets = <&reset RESET_IMX>;
+		reset-names = "imx";
+	};
+
+	owl-audio-i2s@0xe0100000 {
+		compatible = "actions,owl-audio-i2s";
+		reg = <0 0xe0100000 0 0x34>;
+		clocks = <&clock CLK_I2SRX>, <&clock CLK_I2STX>;
+		clock-names = "i2srx", "i2stx";
+		dmas = <&dma DMA_DRQ_I2S_TX>, <&dma DMA_DRQ_I2S_RX>, <&dma DMA_DRQ_HDMI_AUDIO>;
+		dma-names = "tx","rx","hdmia";
+	};
+
+	gpu@e0600000 {
+		compatible = "Imagination,rogue";
+		reg = <0 0xe0600000 0 0x100000>;
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-parent = <&gic>;
+		power-domains = <&powergate POWER_DOMAIN_GPU_B>;
+		clocks = <&clock CLK_GPU>, <&clock CLK_GPU_CORE>, <&clock CLK_GPU_MEM>, <&clock CLK_GPU_SYS>;
+		clock-names = "gpu", "gpu_core", "gpu_mem", "gpu_sys";
+		resets = <&reset RESET_GPU3D_PA>, <&reset RESET_GPU3D_PB>;
+		reset-names = "gpu3d_pa", "gpu3d_pb";
+	};
+
+	ethernet@e0310000 {
+		compatible = "actions,s900-ethernet";
+		reg = <0 0xe0310000 0 0x100>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_ETH_MAC>, <&clock CLK_RMII_REF>;
+		clock-names = "eth_mac", "rmii_ref";
+		resets = <&reset RESET_ETHERNET>;
+		reset-names = "ethernet";
+		pinctrl-names = "default";
+		pinctrl-0 = <&ethernet_state_default>;
+		status = "disabled";
+	};
+
+	mdio:mdio@e0310000 {
+		compatible = "actions,owl-mdio-bus";
+		clocks = <&clock CLK_ETH_MAC>;
+		clock-names = "eth_mac";
+		reg = <0 0xe0310000 0 0x100>;
+		resets = <&reset RESET_ETHERNET>;
+		reset-names = "ethernet";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&mdio_state_default>;
+		status = "disabled";
+  };
+  
+	dmm_pm@e0290000 {
+		compatible = "actions,s900-dmm-pm";
+		reg = <0 0xe0290000 0 0x120>;
+		clocks = <&clock CLK_DDR0>;
+		clock-names = "ddr";
+		status = "disabled";
+	};
+
+	thermal8: thermal@e0130020 {
+		compatible = "actions,s900-thermal";
+		reg = <0 0xe0130020 0 0x04>;
+		id = <8>;
+		clocks = <&clock CLK_THERMAL_SENSOR>;
+		clock-names = "thermal_sensor";
+	};
+
+};

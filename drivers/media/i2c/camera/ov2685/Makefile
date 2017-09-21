@@ -1,0 +1,1 @@
+obj-$(CONFIG_OV2685)	+= ov2685.o

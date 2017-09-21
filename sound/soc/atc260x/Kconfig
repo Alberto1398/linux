@@ -1,0 +1,35 @@
+config SND_SOC_OWL
+	tristate
+	depends on SND_SOC
+
+config SND_SOC_ATC2609A
+	tristate
+	depends on SND_SOC_OWL
+
+config SND_SOC_ATC2603C
+	tristate
+	depends on SND_SOC_OWL
+
+config SND_SOC_HDMI_OWL
+	tristate
+	depends on SND_SOC_OWL
+
+config SND_SOC_BLUETOOTH_PCM_OWL
+	tristate
+	depends on SND_SOC_OWL
+
+config SND_SOC_DAI_OWL
+	tristate
+	depends on SND_SOC_OWL
+
+config SND_SOC_ALL_PMU_OWL
+	tristate "SoC Audio support for all pmus owl board"
+	select SND_SOC_OWL
+	select SND_SOC_HDMI_OWL
+	select SND_SOC_DAI_OWL
+	select SND_SOC_ATC2609A
+	select SND_SOC_ATC2603C
+	select SND_SOC_BLUETOOTH_PCM_OWL
+	help
+	  Say Y if you want to add support for SoC audio on atc2609a-based
+	  S500 board.

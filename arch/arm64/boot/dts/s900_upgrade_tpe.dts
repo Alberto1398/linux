@@ -1,0 +1,233 @@
+/*
+ * Copyright (C) 2014 Actions Semi. Inc
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation version 2.
+ *
+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+ * kind, whether express or implied; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+
+/* reserve 48MB for logo(fb) */
+/memreserve/ 0x19000000 0x03000000;
+
+/* reserve 48MB for ion0(fb) */
+/memreserve/ 0x1C000000 0x03000000;
+
+/* reserve 32MB for ion1(pmem) */
+/memreserve/ 0x20000000 0x02000000;
+
+/* reserve 4k for afinfo */
+/memreserve/ 0x18FFF000 0x1000;
+
+#include "s900.dtsi"
+
+/ {
+	model = "s900";
+	compatible = "actions,s900";
+
+	chosen {
+		bootargs="console=ttyS5,115200 earlyprintk=serial-owl,0xe012a000 no_console_suspend bootmode=upgrade";
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0 0x00000000 0 0x20000000>;
+	};
+
+	ion_config {
+		compatible = "actions,s900-ion";
+		actions,ion_heap_fb_base = <0x1c000000>;
+		actions,ion_heap_fb_size = <0x03000000>;
+		actions,ion_heap_pmem_base = <0x20000000>;
+		actions,ion_heap_pmem_size = <0x02000000>;
+	};
+
+	mmc0: mmc@e0338000 {
+		card-type = "emmc";
+		status = "okay";
+	};
+
+	mmc1: mmc@e033c000 {
+		card-type = "emmc";
+		status = "okay";
+	};
+
+	mmc2: mmc@e0334000 {
+		status = "disable";
+	};
+
+	mmc3: mmc@e0330000 {
+		card-type = "memory";
+		status = "disable";
+	};
+
+	i2c1: i2c@e0172000 {
+		status = "okay";
+		atc260x: atc2609a@65 {
+			compatible = "actions,atc2609a","actions,atc260x";
+			reg = <0x65>;
+			interrupt-parent = <&sirq>;
+			interrupts = <2>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+
+			losc_32k_output_enable = <1>;    /* enable/disable output 32.768K clock via AUXIN1 pin */
+
+			pm {
+				compatible = "actions,atc2609a-pm";
+			};
+
+			onoff {
+				compatible = "actions,atc2609a-onoff";
+			};
+
+			rtc{
+				compatible = "actions,atc2609a-rtc";
+			};
+
+			atc260x_gpio{
+				compatible = "actions,atc2609a-gpio";
+			};
+
+			atc260x-charger{
+				compatible = "actions,atc2609a-charger";
+				no_bat_solution = <1>; /*1:NO_BAT_SOLUTION; 0:BAT_SOLUTION*/
+			};
+
+			/* DCDC0       VDD_CORE
+			 * DCDC1       VDD_CPU
+			 * DCDC2       VDDR
+			 * DCDC3       VCC
+			 * DCDC4       VDD_CPUM
+			 */
+			dcdc0: dcdc0 {
+				compatible = "actions,atc2609a-dcdc0","actions,atc2609a-dcdc";
+				regulator-name = "dcdc0";
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+			};
+
+			dcdc1: dcdc1 {
+				compatible = "actions,atc2609a-dcdc1","actions,atc2609a-dcdc";
+				regulator-name = "dcdc1";
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+			};
+
+			dcdc2: dcdc2 {
+				compatible = "actions,atc2609a-dcdc2","actions,atc2609a-dcdc";
+				regulator-name = "dcdc2";
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <1550000>;
+				regulator-always-on;
+			};
+
+			dcdc3: dcdc3 {
+				compatible = "actions,atc2609a-dcdc3","actions,atc2609a-dcdc";
+				regulator-name = "dcdc3";
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <3500000>;
+				regulator-always-on;
+			};
+
+			dcdc4: dcdc4 {
+				compatible = "actions,atc2609a-dcdc4","actions,atc2609a-dcdc";
+				regulator-name = "dcdc4";
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+			};
+
+			/* LDO0        SD_VCC
+			 * LDO1        SENS_AVDD
+			 * LDO2        AVCC
+			 * LDO3        ATC2609_VDD
+			 * LDO4        AVCC_1V8
+			 * LDO6        AVDD_1V0
+			 * LDO7        SENS_DVDD
+			 * LDO8        TP_VCC
+			 * LDO9        RTC_VDD     */
+
+			ldo0: ldo0{
+				compatible = "actions,atc2609a-ldo0","actions,atc2609a-ldo";
+				regulator-name = "ldo0";
+				regulator-min-microvolt  = <2300000>;
+				regulator-max-microvolt = <3400000>;
+				regulator-always-on;
+			};
+
+			ldo1: ldo1{
+				compatible = "actions,atc2609a-ldo1","actions,atc2609a-ldo";
+				regulator-name = "ldo1";
+				regulator-min-microvolt  = <2300000>;
+				regulator-max-microvolt = <3400000>;
+			};
+
+			ldo2: ldo2{
+				compatible = "actions,atc2609a-ldo2","actions,atc2609a-ldo";
+				regulator-name = "ldo2";
+				regulator-min-microvolt  = <2300000>;
+				regulator-max-microvolt = <3400000>;
+				regulator-always-on;
+			};
+
+			ldo3: ldo3{
+				compatible = "actions,atc2609a-ldo3","actions,atc2609a-ldo";
+				regulator-name = "ldo3";
+				regulator-min-microvolt  = <700000>;
+				regulator-max-microvolt = <2200000>;
+				regulator-always-on;
+			};
+
+			ldo4: ldo4{
+				compatible = "actions,atc2609a-ldo4","actions,atc2609a-ldo";
+				regulator-name = "ldo4";
+				regulator-min-microvolt  = <700000>;
+				regulator-max-microvolt = <2200000>;
+				regulator-always-on;
+			};
+
+			ldo6: ldo6{
+				compatible = "actions,atc2609a-ldo6","actions,atc2609a-ldo";
+				regulator-name = "ldo6";
+				regulator-min-microvolt  = <850000>;
+				regulator-max-microvolt = <2200000>;
+				regulator-always-on;
+			};
+
+			ldo7: ldo7{
+				compatible = "actions,atc2609a-ldo7","actions,atc2609a-ldo";
+				regulator-name = "ldo7";
+				regulator-min-microvolt  = <700000>;
+				regulator-max-microvolt = <2200000>;
+			};
+
+			ldo8: ldo8{
+				compatible = "actions,atc2609a-ldo8","actions,atc2609a-ldo";
+				regulator-name = "ldo8";
+				regulator-min-microvolt  = <2100000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			ldo9: ldo9{
+				compatible = "actions,atc2609a-ldo9","actions,atc2609a-ldo";
+				regulator-name = "ldo9";
+				regulator-min-microvolt  = <2600000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+		};
+	};
+
+	de@e02e0000 {
+		status = "disabled";
+	};
+};

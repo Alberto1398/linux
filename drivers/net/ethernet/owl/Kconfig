@@ -1,0 +1,4 @@
+config NET_OWL_MAC
+	tristate "Actions Ethernet driver"
+	---help---
+		enable Actions Semi ethernet driver

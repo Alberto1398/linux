@@ -1,0 +1,108 @@
+config VIDEO_OWL_PANELS
+	depends on VIDEO_OWL_DSS
+	tristate "OWL Display Panels support"
+	---help---
+	  Actions OWL Soc Display Panels support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_GLP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic LCD/LVDS Panel support"
+	---help---
+	  Actions OWL Soc Generic LCD/LVDS Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_GEP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic EDP Panel support"
+	---help---
+	  Actions OWL Soc Generic EDP Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_TC358860
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL particular edp2dsi Panel support"
+	---help---
+	  Actions OWL Soc particular edp2dsi Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_GMP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic MIPI Panel support"
+	---help---
+	  Actions OWL Soc Generic MIPI Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_GHP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic HDMI Panel support"
+	---help---
+	  Actions OWL Soc Generic HDMI Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+config VIDEO_OWL_GCP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic CVBS Panel support"
+	---help---
+	  Actions OWL Soc Generic CVBS Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_GDP
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL Generic Dummy Panel support"
+	---help---
+	  Actions OWL Soc Generic Dummy Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_lq055t3sx02
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL lq055t3sx02 MIPI Panel support"
+	---help---
+	  Actions OWL Soc lq055t3sx02 MIPI Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_AMOLED
+	depends on VIDEO_OWL_PANELS
+	tristate "OWL AMOLED MIPI Panel support"
+	---help---
+	  Actions OWL Soc AMOLED MIPI Panel support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.

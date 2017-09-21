@@ -1,0 +1,1 @@
+obj-$(CONFIG_GC5004)	+= gc5004.o

@@ -1,0 +1,297 @@
+/*
+ * Copyright (C) 2014 Actions Semi. Inc
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation version 2.
+ *
+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+ * kind, whether express or implied; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+
+/* reserve 48MB for logo(fb) */
+///memreserve/ 0x19000000 0x03000000;
+
+/* reserve 48MB for ion0(fb) */
+/memreserve/ 0x1C000000 0x01000000;
+
+/* reserve 32MB for ion1(pmem) */
+/memreserve/ 0x20000000 0x01000000;
+
+/* reserve 4k for afinfo */
+/memreserve/ 0x18FFF000 0x1000;
+
+#include "s700.dtsi"
+
+/ {
+	model = "s700";
+	compatible = "actions,s700";
+
+	chosen {
+		bootargs="console=ttyS5,115200 earlyprintk=serial-owl,0xe012a000 no_console_suspend";
+	};
+	cpus {
+		CPU0: cpu@0 {
+			cpuvdd-supply = <&vdd_cpu_dcdc>;
+		};
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0 0x00000000 0 0x20000000>;
+	};
+
+	ion_config {
+		compatible = "actions,s900-ion";
+		actions,ion_heap_fb_base = <0x1c000000>;
+		actions,ion_heap_fb_size = <0x01000000>;
+		actions,ion_heap_pmem_base = <0x20000000>;
+		actions,ion_heap_pmem_size = <0x01000000>;
+	};
+
+	mmc0: mmc@e0218000 {
+		card-type = "emmc";
+		status = "okay";
+	};
+
+	serial3: uart@e0126000 {
+		status = "okay";
+	};
+	serial5: uart@e012a000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&serial5_state_default>;
+	};
+	pwm: pwm@e01b0000 {
+		pwm1 {
+			id = <1>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm1_state_default>;
+		};
+		pwm2 {
+			id = <2>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwm2_state_default>;
+		};
+	};
+
+	owl_aotg_config {
+                compatible = "actions,owl-aotg-config";
+                usb_cam_shield1 = "e01d0000";
+                usb_cam_shield2 = "e01d8000";
+        };
+
+		i2c2: i2c@e0178000 {
+		i2c_num = <0>;
+		clock-frequency = <400000>;
+		status = "okay";
+		/* atc2603c (5307) */
+		atc260x: atc2603c@65 {
+			compatible = "actions,atc2603c";
+			reg = <0x65>;
+			interrupt-parent = <&sirq>;
+			interrupts =< 2 0x4 >;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+
+			losc_32k_output_enable = <1>;    /* enable/disable output 32.768K clock via I2S_MCLK1 pin */
+			losc_32k_output_voltage = <18>;  /* select voltage scale of the 32.768K clock output, 18:1.8v, 31:3.1v */
+			board_flag = <1>;
+			pm {
+				compatible = "actions,atc2603c-pm";
+			};
+
+			onoff {
+				compatible = "actions,atc2603c-onoff";
+			};
+
+			rtc{
+				compatible = "actions,atc2603c-rtc";
+			};
+
+			atc260x_gpio: atc260x_gpio {
+				compatible = "actions,atc2603c-gpio";
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
+			atc260x_sgpio: atc260x_sgpio {
+				compatible = "actions,atc2603c-sgpio";
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+			};
+
+
+			atc260x-irkeypad{
+				size = <28>;
+				user_code = <16448>;
+				protocol = <1>;
+				wk_code= <77>;
+				period = <140>;
+				ir_code = <77 67 21 28 11 14 16 17 13 26 69 66 12 1 2 3 4 5 6 7 8 9 0 68 83 18 30 31>;
+				key_code = <116 113 115 114 103 108 105 106 353 172 139 158 14 2 3 4 5 6 7 8 9 10 11 175 139 52 165 163>;
+				compatible = "actions,atc2603c-irkeypad";
+			};
+
+			/*the cfg params must be read	in the first installed ko,
+			 now snd-soc-atv5302.ko is first installed.
+			 1, earphone_detect_level use the third value of earphone_gpios
+			 2, commonly, we shouldn't change the value of speaker_gain and earphone_gain*/
+			atc260x-hwmon{
+				compatible = "actions,atc2603c-hwmon";
+			};
+
+
+			vdd_cpu_dcdc: vdd-cpu-dcdc {
+				compatible = "actions,atc2603c-ext-pwm-dcdc1","actions,atc2603c-ext-pwm-dcdc";
+				regulator-name = "vdd-cpu-dcdc";
+				regulator-min-microvolt  = <975000>;
+				regulator-max-microvolt = <1350000>;
+				regulator-always-on;
+				pwms = <&pwm 1 2666 0>;	// 1-pwm1   2666-1/(24M/64)*1000000-1   0 -active high
+				table_len = < 14 >;			//length of vdd_cpu_table & pwm_config_table
+				vdd_cpu_table = <975000 1000000 1025000 1050000 1075000 1100000 1125000 1150000 1175000 1200000 1225000 1250000 1300000 1350000>;	//uV
+				pwm_config_table = <16 15 14 13 12 11 10 9 8 7 6 5 4 3>;	//the pwm period of 1.1v 1.2v 1.3v
+				aux=<2>;
+				/*pwm_revise = <1>;*/
+			};
+/*
+			vdd_core_dcdc: vdd-core-dcdc {
+				compatible = "actions,atc2603c-ext-pwm-dcdc2","actions,atc2603c-ext-pwm-dcdc";
+				regulator-name = "vdd-core-dcdc";
+				regulator-min-microvolt  = <900000>;
+				regulator-max-microvolt = <1250000>;
+				regulator-always-on;
+				pwms = <&pwm 2 2666 0>;	// 1-pwm1   2666-1/(24M/64)*1000000-1   0 -active high
+				table_len = < 15 >;			//length of vdd_cpu_table & pwm_config_table
+				vdd_cpu_table = <900000 925000 950000 975000 1000000 1025000 1050000 1075000 1100000 1125000 1150000 1175000 1200000 1225000 1250001>;	//uV
+				pwm_config_table = <19 18 17 16 15 14 13 12 11 10 9 8 7 6 5>;	//the pwm period of 1.1v 1.2v 1.3v
+			};
+*/
+			dcdc1: dcdc1 {
+				compatible = "actions,atc2603c-dcdc1","actions,atc2603c-dcdc";
+				regulator-name = "dcdc1";
+				regulator-min-microvolt = <700000>;
+				regulator-max-microvolt = <1400000>;
+				regulator-always-on;
+			};
+
+			dcdc2: dcdc2 {
+				compatible = "actions,atc2603c-dcdc2","actions,atc2603c-dcdc";
+				regulator-name = "dcdc2";
+				regulator-min-microvolt = <1300000>;
+				regulator-max-microvolt = <2200000>;
+				regulator-always-on;
+			};
+
+			dcdc3: dcdc3 {
+				compatible = "actions,atc2603c-dcdc3","actions,atc2603c-dcdc";
+				regulator-name = "dcdc3";
+				regulator-min-microvolt = <2600000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+
+			dcdc4: dcdc4 {
+				status = "disabled";
+			};
+
+			dcdc5: dcdc5 {
+				status = "disabled";
+			};
+
+			ldo1: ldo1{
+				compatible = "actions,atc2603c-ldo1","actions,atc2603c-ldo";
+				regulator-name = "ldo1";
+				regulator-min-microvolt  = <2800000>;
+				regulator-max-microvolt = <2800000>;
+				regulator-always-on;
+			};
+
+			ldo2: ldo2{
+				compatible = "actions,atc2603c-ldo2","actions,atc2603c-ldo";
+				regulator-name = "ldo2";
+				regulator-min-microvolt  = <2600000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+
+			ldo3: ldo3{
+				compatible = "actions,atc2603c-ldo3","actions,atc2603c-ldo";
+				regulator-name = "ldo3";
+				regulator-min-microvolt  = <1500000>;
+				regulator-max-microvolt = <2000000>;
+				regulator-always-on;
+			};
+
+			ldo4: ldo4{
+				status = "disabled";
+			};
+
+			ldo5: ldo5{
+				compatible = "actions,atc2603c-ldo5","actions,atc2603c-ldo";
+				regulator-name = "ldo5";
+				regulator-min-microvolt  = <2600000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			ldo6: ldo6{
+				compatible = "actions,atc2603c-ldo6","actions,atc2603c-ldo";
+				regulator-name = "ldo6";
+				regulator-min-microvolt  = <700000>;
+				regulator-max-microvolt = <1400000>;
+				regulator-always-on;
+			};
+
+			ldo7: ldo7{
+				compatible = "actions,atc2603c-ldo7","actions,atc2603c-ldo";
+				regulator-name = "ldo7";
+				regulator-min-microvolt  = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+				regulator-suspend-off;
+			};
+
+			ldo8: ldo8{
+				compatible = "actions,atc2603c-ldo8","actions,atc2603c-ldo";
+				regulator-name = "ldo8";
+				regulator-min-microvolt  = <2300000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			ldo9: ldo9{
+				status = "disabled";
+			};
+
+			ldo10: ldo10{
+				status = "disabled";
+			};
+
+			ldo11: ldo11{
+				compatible = "actions,atc2603c-ldo11","actions,atc2603c-ldo";
+				regulator-name = "ldo11";
+				regulator-min-microvolt  = <2600000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+
+			switch1:switch1{
+				compatible = "actions,atc2603c-switch1","actions,atc2603c-switch";
+				regulator-name = "switch1";
+				regulator-min-microvolt  = <3000000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+			};
+
+			switch2:switch2{
+				status = "disabled";
+			};
+		};
+	};
+};

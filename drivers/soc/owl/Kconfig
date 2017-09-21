@@ -1,0 +1,7 @@
+config OWL_CPU_AUTO_HOTPLUG
+	bool "owl cpu auto hotplug driver"
+	depends on ARCH_OWL
+	depends on HOTPLUG_CPU
+	help
+	  This enables support for cpu auto plugin/out depends on loading
+	  to save power consume.

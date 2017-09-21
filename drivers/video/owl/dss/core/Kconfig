@@ -1,0 +1,9 @@
+config VIDEO_OWL_DSS
+	tristate "OWL Display Subsystem Core"
+	---help---
+	  Actions OWL Soc Display Subsystem support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.

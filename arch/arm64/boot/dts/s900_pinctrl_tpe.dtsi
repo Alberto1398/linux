@@ -1,0 +1,254 @@
+/*
+ * Copyright (C) 2014 Actions Semi. Inc
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation version 2.
+ *
+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+ * kind, whether express or implied; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/ {
+	pinctrl@e01b0000 {
+		compatible = "actions,s900-pinctrl";
+		reg = <0 0xe01b0000 0 0x1000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&state_default>;
+
+		clocks = <&clock CLK_GPIO>;
+		clock-names = "mfp";
+
+		state_default: pinctrl_default {
+		};
+
+		pinctrl_i2c0_default: i2c0 {
+			i2c0_mfp {
+				actions,groups = "mfp3_18_16";
+				actions,function = "i2c0";
+			};
+
+			i2c0_pull {
+				actions,pins = "P_I2C0_SCLK", "P_I2C0_SDATA";
+				actions,pull = <0>;
+			};
+		};
+
+		pinctrl_i2c1_default: i2c1 {
+			i2c1_pull {
+				actions,pins = "P_I2C1_SCLK", "P_I2C1_SDATA";
+				actions,pull = <2>;
+			};
+		};
+
+
+		pinctrl_i2c2_default: i2c2 {
+			i2c2_pull {
+				actions,pins = "P_I2C2_SCLK", "P_I2C2_SDATA";
+				actions,pull = <2>;
+			};
+		};
+
+		pinctrl_gpio_lvds_e: gpio_lvds_e {
+			gpio_lvds_e_mfp {
+				actions,groups = "mfp1_21_lvds_e";
+				actions,function = "eram";
+			};
+		};
+
+		pinctrl_gpio_lvds_o: gpio_lvds_o {
+			gpio_lvds_o_mfp {
+		                actions,groups = "mfp1_22_lvds_oap_oan";
+		                actions,function = "eram";
+			};
+		};
+
+		pwm2_state_default: pwm2_default {
+		        pwm2_mfp {
+				actions,groups = "mfp1_28_26_eram_a9";
+				actions,function = "pwm2";
+		        };
+		};
+
+		serial2_state_default: serial2_default {
+		        serial2_mfp {
+		                actions,groups = "mfp1_22_lvds_oep_odn";
+		                actions,function = "uart2";
+		        };
+		};
+
+		serial3_state_default: serial3_default {
+		        serial3_mfp {
+		                actions,groups = "mfp2_21", "mfp2_20";
+		                actions,function = "uart3";
+		        };
+		};
+		
+		serial5_state_default: serial5_default {
+				actions,groups = "mfp1_25_23","mfp1_28_26_eram_a9";
+				actions,function = "uart5";
+		};
+
+		mmc_share_uart_state: mmc_share_uart {
+			sd0_mfp_cmd_clk {
+				actions,groups = "mfp2_8_7", "mfp2_6_5";
+				actions,function = "sd0";
+			};
+
+			sd0_pull_cmd {
+				actions,pins = "P_SD0_CMD";
+				actions,pull = <2>;
+			};
+
+			sd0_pull_clk {
+				actions,pins = "P_SD0_CLK";
+				actions,pull = <2>;
+			};
+
+			sd0_d0_d3_cmd_clk_paddrv  {
+				actions,groups  = "paddrv1_21_20","paddrv1_17_16";
+				actions,paddrv  = <3>; /*level 3£¬0~3*/
+			};
+
+			serial_5 {
+				actions,groups = "mfp2_19_17","mfp2_16_14";
+				actions,function = "uart5";
+			};
+		};
+
+		mm0_pinctrl_state: mm0_pinctrl_cfg {
+			sd0_mfp_d0_d3_cmd_clk {
+				actions,groups = "mfp2_19_17", "mfp2_16_14", "mfp2_13_11", "mfp2_8_7", "mfp2_6_5";
+				actions,function = "sd0";
+			};
+
+			sd0_pull_d0_d3_cmd {
+				actions,pins = "P_SD0_D0", "P_SD0_D1", "P_SD0_D2", "P_SD0_D3", "P_SD0_CMD";
+				actions,pull = <2>;
+			};
+
+			sd0_pull_clk {
+				actions,pins = "P_SD0_CLK";
+				actions,pull = <2>;
+			};
+
+			sd0_d0_d3_cmd_clk_paddrv  {
+				actions,groups  = "paddrv1_21_20","paddrv1_17_16";
+				actions,paddrv  = <3>; /*level 3,0~3*/
+			};
+		};
+
+		mm1_pinctrl_state: mm1_pinctrl_cfg {
+			sd1_mfp_d0_d3_cmd_clk {
+				actions,groups = "mfp2_10_9", "mfp2_4_3";
+				actions,function = "sd1";
+			};
+			sd1_pull_d0_d3_cmd {
+				actions,pins = "P_SD1_D0", "P_SD1_D1", "P_SD1_D2", "P_SD1_D3", "P_SD1_CMD";
+				actions,pull = <2>;
+			};
+			sd1_d0_d3_paddrv  {
+				actions,groups  = "paddrv1_19_18";
+				actions,paddrv  = <3>; /*level 3,0~3*/
+			};
+		};
+
+		mm2_pinctrl_state: mm2_pinctrl_cfg {
+			sd2_mfp_d0_d3_cmd_clk {
+				actions,groups = "mfp3_27";
+				actions,function = "sd2";
+			};
+			sd2_pull_d0_d3_cmd {
+				actions,pins = "P_NAND0_D0","P_NAND0_D1","P_NAND0_D2","P_NAND0_D3","P_NAND0_D4","P_NAND0_D5","P_NAND0_D6","P_NAND0_D7","P_NAND0_DQSN";
+				actions,pull = <2>;
+			};
+		};
+
+		mm3_pinctrl_state: mm3_pinctrl_cfg {
+			sd3_mfp_d0_d3_cmd_clk {
+				actions,groups = "mfp3_11";
+				actions,function = "sd3";
+			};
+			sd3_pull_d0_d3_cmd {
+				actions,pins = "P_NAND1_D0","P_NAND1_D1","P_NAND1_D2","P_NAND1_D3","P_NAND1_D4","P_NAND1_D5","P_NAND1_D6","P_NAND1_D7","P_NAND1_DQSN";
+				actions,pull = <2>;
+			};
+		};
+
+
+		mipi_csi0_state_default: mipi_csi0_default {
+			csi0_mfp {
+				actions,groups = "mfp3_14";
+				actions,function = "mipi_csi0";
+			};
+		};
+
+		mipi_csi1_state_default: mipi_csi1_default {
+			csi1_mfp {
+				actions,groups = "mfp3_13";
+				actions,function = "mipi_csi1";
+			};
+		};
+
+		i2s0_state_default: i2s0_default {
+			i2s0_default_mfp {
+				actions,groups = "mfp0_2_i2s0", "mfp0_4_3", "mfp0_5_i2s_d0";
+				actions,function = "i2s0";
+			};
+		};
+
+		dsi_state_default: dsi_default {
+		        dsi_mfp {
+		                actions,groups = "mfp3_12_dsi_dp3_dn1";
+		                actions,function = "mipi_dsi";
+		        };
+		};
+
+		lvds_state_default: lvds_default {
+			lvds_mux {
+				actions,groups = "mfp1_22_lvds_oep_odn", "mfp1_22_lvds_ocp_obn", "mfp1_22_lvds_oap_oan", "mfp1_21_lvds_e";
+				actions,function = "lvds";
+			};
+		};
+
+		ethernet_state_default: ethernet_default {			
+
+			ethernet_rmii_txd01 {
+				actions,groups = "mfp0_18_16_eth_txd0", "mfp0_18_16_eth_txd1";
+				actions,function = "eth_rmii";
+			};
+
+			ethernet_rmii_txen_rxer {
+				actions,groups = "mfp0_15_13_eth_txen", "mfp0_15_13_eth_rxer";
+				actions,function = "eth_rmii";
+			};
+
+			ethernet_rmii_crs_dv {
+				actions,groups = "mfp0_12_11";
+				actions,function = "eth_rmii";
+			};
+
+			ethernet_rmii_rxd10 {
+				actions,groups = "mfp0_10_8_eth_rxd1", "mfp0_10_8_eth_rxd0";
+				actions,function = "eth_rmii";
+			};
+
+			ethernet_rmii_ref_clk {
+				actions,groups = "mfp0_7_6";
+				actions,function = "eth_rmii";
+			};
+		};
+		
+		mdio_state_default: mdio_default 
+		{
+			ethernet_smi { /* pins: MDC & MDIO */
+				actions,groups = "mfp0_21_20_eth_mdc", "mfp0_21_20_eth_mdio";
+				actions,function = "eth_rmii";
+			};
+		};
+		
+	};
+};

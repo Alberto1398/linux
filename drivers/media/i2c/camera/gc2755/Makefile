@@ -1,0 +1,1 @@
+obj-$(CONFIG_GC2755)	+= gc2755.o

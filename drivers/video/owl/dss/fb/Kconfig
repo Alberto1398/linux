@@ -1,0 +1,13 @@
+config VIDEO_OWL_FB
+	tristate "OWL Framebuffer support"
+	depends on VIDEO_OWL_DSS
+	select FB_CFB_FILLRECT
+	select FB_CFB_COPYAREA
+	select FB_CFB_IMAGEBLIT
+	---help---
+	  Actions OWL Soc FB driver support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.

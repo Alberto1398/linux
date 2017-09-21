@@ -1,0 +1,13 @@
+#
+# Actions CPU si or isp driver and the hdmi-in sensors of Actions support 
+#
+# 
+
+config TC358749
+	tristate "TC358749 hdmi-in sensor driver"
+	depends on VIDEO_V4L2 && I2C
+	help
+	  Support for TC358749 camera
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called TC358749.

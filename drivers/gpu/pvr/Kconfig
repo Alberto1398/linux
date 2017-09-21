@@ -1,0 +1,37 @@
+menuconfig IMG_POWERVR_GPU
+	bool "Imagination PowerVR GPU Support"
+	default n
+	help
+	  Say Y here if your SoC contains a Imagination PowerVR GPU. For more
+	  information, see <http://www.imgtec.com/powervr/>.
+
+if IMG_POWERVR_GPU
+
+config POWERVR_SGX_5xx
+	tristate "PowerVR SGX-540 or SGX-544"
+	default n
+	help
+	  Driver for PowerVR SGX-5xx hardware.
+
+	  Say Y here if your SoC contains a PowerVR SGX-5xx GPU. For more
+	  information, see <http://www.imgtec.com/powervr/>.
+
+config POWERVR_ROGUE
+	tristate "PowerVR Rogue"
+	default n
+	help
+	  Driver for PowerVR Rogue hardware.
+
+	  Say Y here if your SoC contains a PowerVR Rogue GPU. For more
+	  information, see <http://www.imgtec.com/powervr/>.
+
+config POWERVR_ROGUE_LINUX
+	tristate "PowerVR Rogue Linux"
+	default n
+	help
+	  Driver for PowerVR Rogue hardware on linux system.
+
+	  Say Y here if your SoC contains a PowerVR Rogue GPU. For more
+	  information, see <http://www.imgtec.com/powervr/>.
+
+endif

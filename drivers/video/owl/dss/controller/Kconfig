@@ -1,0 +1,82 @@
+config VIDEO_OWL_CONTROLLERS
+	depends on VIDEO_OWL_DSS
+	tristate "OWL Display Controllers support"
+	---help---
+	  Actions OWL Soc Display Controllers support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_EDPC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL EDP Controllers support"
+	---help---
+	  Actions OWL Soc EDP Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_LCDC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL LCD/LVDS Controllers support"
+	---help---
+	  Actions OWL Soc LCD/LVDS Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+config VIDEO_OWL_DSIC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL MIPI Controllers support"
+	---help---
+	  Actions OWL Soc MIPI Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+source "drivers/video/owl/dss/controller/dsic/Kconfig"
+
+config VIDEO_OWL_HDMIC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL HDMI Controllers support"
+	---help---
+	  Actions OWL Soc HDMI Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+source "drivers/video/owl/dss/controller/hdmic/Kconfig"
+
+config VIDEO_OWL_CVBSC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL CVBS Controllers support"
+	---help---
+	  Actions OWL Soc CVBS Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+source "drivers/video/owl/dss/controller/cvbsc/Kconfig"
+
+
+config VIDEO_OWL_DUMMY_DISPC
+	depends on VIDEO_OWL_CONTROLLERS
+	tristate "OWL Dummy Controllers support"
+	---help---
+	  Actions OWL Soc Dummy Controller support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+

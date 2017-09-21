@@ -1,0 +1,13 @@
+#
+# Actions CPU si or isp driver and the camera sensors of Actions support 
+#
+# 
+
+config GC2755
+	tristate "GC2755 camera sensor driver"
+	depends on VIDEO_V4L2 && I2C
+	help
+	  Support for GC2755 camera
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called GC2755.

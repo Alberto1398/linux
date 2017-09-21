@@ -1,0 +1,31 @@
+config VIDEO_OWL_ADF
+	tristate "OWL ADF support"
+	---help---
+	  Actions OWL Soc ADF support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.
+
+config VIDEO_OWL_ADF_FBDEV_SUPPORT
+        bool "OWL ADF FBDEV Support"
+        depends on VIDEO_OWL_ADF
+	select FB_CFB_IMAGEBLIT
+        ---help---
+          Simulate framebuffer device using OWL ADF Driver.
+
+          Say Y here if you need FB function.
+
+          If unsure, say N.
+
+config VIDEO_OWL_ADF_FBDEV_PCBABOARD_SUPPORT
+        bool "OWL ADF FBDEV pcba baord Support"
+        depends on VIDEO_OWL_ADF
+	select FB_CFB_IMAGEBLIT
+        ---help---
+          Simulate framebuffer device using OWL ADF Driver.
+
+          Say Y here if you need FB function.
+
+          If unsure, say N.

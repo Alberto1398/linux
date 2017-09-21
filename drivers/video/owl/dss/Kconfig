@@ -1,0 +1,6 @@
+source "drivers/video/owl/dss/core/Kconfig"
+source "drivers/video/owl/dss/de/Kconfig"
+source "drivers/video/owl/dss/controller/Kconfig"
+source "drivers/video/owl/dss/panel/Kconfig"
+source "drivers/video/owl/dss/fb/Kconfig"
+source "drivers/video/owl/dss/adf/Kconfig"

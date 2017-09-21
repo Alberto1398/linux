@@ -1,0 +1,10 @@
+config VIDEO_OWL_HDMI_IP_SX00
+	depends on VIDEO_OWL_HDMIC
+	tristate "OWL SX00 HDMI IP support"
+	---help---
+	  Actions OWL SX00(S500/S900/S700) HDMI IP support.
+
+	  Say Y here if you need it in your system.
+	  If unsure, say Y.
+
+	  To compile this driver as a module, choose M here.

@@ -1,0 +1,1 @@
+obj-$(CONFIG_GS5604)	+= gs5604.o

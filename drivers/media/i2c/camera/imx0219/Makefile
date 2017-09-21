@@ -1,0 +1,1 @@
+obj-$(CONFIG_IMX0219)	+= imx0219.o

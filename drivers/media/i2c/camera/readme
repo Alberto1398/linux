@@ -1,0 +1,46 @@
+code files of camera:
+
+arch/arm/mach-liger/isp_pwd.c
+--> common interfaces for sensor drivers used to power on/off and reset sensor, 
+    and also to get sensor's config.
+
+arch/arm/mach-liger/include/mach/gl5203_isp.h
+
+isp/
+--> isp driver on SOC
+
+sensor/
+--> drivers of sensor, only gc0308, gc2035 and gt2005 supported, others used 
+    for gl5202, need migrate.
+    NOTE: sensor_comm.c file should be included by each sensor driver.
+
+------------------------------------------------------------------------------
+driver insmod
+
+dual camera:
+if support tow sensors which are different, eg:
+insmod gc0308.ko
+insmod gc2035.ko
+insmod gl5203_cmaera.ko
+
+if front sensor is the same as rear one:
+insmod gc0308.ko dual=1
+insmod gl5203_camera.ko
+
+you can select which one is going to work by writing /sys/dualcam/dualmod file;
+should not write to it when the device is open.
+read the file to get which one is valid, 1 is rear one , 0 is front one. 
+only when dual==1, dualmod file is created.
+when tow sensors are different, should not assign dual varible for anyone.
+
+single camera:
+insmod gc0308.ko
+insmod gl5203_camera.ko
+
+--------------------------------------------------------------------------------
+host and channel:
+normally, only one host exist in out system, no mater 3D supported or not;
+for non-3D envirement, only use a particular channel(sens0 or sens1) determined
+by board type. if both are supported, select any one by isp dts.
+for 3D envirement, only and should one host exist which using tow channels at
+the same time.
